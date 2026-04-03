@@ -30,15 +30,12 @@ class _MainNavScreenState extends State<MainNavScreen> {
     }
 
     return Scaffold(
-      body: IndexedStack(
-        index: currentIndex,
-        children: pages,
-      ),
+      body: IndexedStack(index: currentIndex, children: pages),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentIndex,
         backgroundColor: Colors.white,
         indicatorColor: const Color(0xFFE0E7FF),
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
         onDestinationSelected: (index) {
           setState(() {
             currentIndex = index;
@@ -61,14 +58,14 @@ class _MainNavScreenState extends State<MainNavScreen> {
             label: 'Add',
           ),
           NavigationDestination(
-            icon: Icon(Icons.badge_outlined),
-            selectedIcon: Icon(Icons.badge_rounded),
-            label: 'Credits',
-          ),
-          NavigationDestination(
             icon: Icon(Icons.settings_outlined),
             selectedIcon: Icon(Icons.settings_rounded),
             label: 'Settings',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.badge_outlined),
+            selectedIcon: Icon(Icons.badge_rounded),
+            label: 'Credits',
           ),
         ],
       ),
