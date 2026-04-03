@@ -84,42 +84,78 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               key: _formKey,
               child: Column(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4F6),
-                      borderRadius: BorderRadius.circular(16),
+                  if (isEditMode)
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF9FAFB),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: const Color(0xFFE5E7EB),
+                        ),
+                      ),
+                      child: const Text(
+                        'Transaction type cannot be changed while editing. Category can still be updated.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF6B7280),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: _TypeButton(
-                            title: 'Expense',
-                            selected: _type == 'expense',
-                            onTap: () {
-                              setState(() {
-                                _type = 'expense';
-                                _category = expenseCategories.first;
-                              });
-                            },
+
+                  Opacity(
+                    opacity: isEditMode ? 0.75 : 1,
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3F4F6),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _TypeButton(
+                              title: 'Expense',
+                              selected: _type == 'expense',
+                              enabled: !isEditMode,
+                              onTap: isEditMode
+                                  ? null
+                                  : () {
+                                setState(() {
+                                  _type = 'expense';
+                                  _category = expenseCategories.first;
+                                });
+                              },
+                            ),
                           ),
-                        ),
-                        Expanded(
-                          child: _TypeButton(
-                            title: 'Income',
-                            selected: _type == 'income',
-                            onTap: () {
-                              setState(() {
-                                _type = 'income';
-                                _category = incomeCategories.first;
-                              });
-                            },
+                          Expanded(
+                            child: _TypeButton(
+                              title: 'Income',
+                              selected: _type == 'income',
+                              enabled: !isEditMode,
+                              onTap: isEditMode
+                                  ? null
+                                  : () {
+                                setState(() {
+                                  _type = 'income';
+                                  _category = incomeCategories.first;
+                                });
+                              },
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
+
                   const SizedBox(height: 18),
+
                   TextFormField(
                     controller: _amountController,
                     keyboardType: const TextInputType.numberWithOptions(
@@ -143,7 +179,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       return null;
                     },
                   ),
+
                   const SizedBox(height: 18),
+
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -156,6 +194,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
+
                   Wrap(
                     spacing: 10,
                     runSpacing: 10,
@@ -178,6 +217,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                                 ? const Color(0xFF4F46E5)
                                 : const Color(0xFFF3F4F6),
                             borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: selected
+                                  ? const Color(0xFF4F46E5)
+                                  : const Color(0xFFE5E7EB),
+                            ),
                           ),
                           child: Text(
                             cat,
@@ -192,7 +236,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       );
                     }).toList(),
                   ),
+
                   const SizedBox(height: 18),
+
                   TextFormField(
                     controller: _noteController,
                     decoration: const InputDecoration(
@@ -200,7 +246,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       prefixIcon: Icon(Icons.sticky_note_2_outlined),
                     ),
                   ),
+
                   const SizedBox(height: 14),
+
                   InkWell(
                     borderRadius: BorderRadius.circular(18),
                     onTap: () async {
@@ -245,7 +293,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 22),
+
                   SizedBox(
                     width: double.infinity,
                     height: 54,
@@ -315,18 +365,20 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 class _TypeButton extends StatelessWidget {
   final String title;
   final bool selected;
-  final VoidCallback onTap;
+  final bool enabled;
+  final VoidCallback? onTap;
 
   const _TypeButton({
     required this.title,
     required this.selected,
+    required this.enabled,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: enabled ? onTap : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
         padding: const EdgeInsets.symmetric(vertical: 14),
