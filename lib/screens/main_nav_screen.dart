@@ -19,8 +19,8 @@ class _MainNavScreenState extends State<MainNavScreen> {
     DashboardScreen(),
     TransactionsScreen(),
     AddTransactionScreen(),
-    CreditsScreen(),
     SettingsScreen(),
+    CreditsScreen(),
   ];
 
   @override
@@ -61,14 +61,14 @@ class _MainNavScreenState extends State<MainNavScreen> {
             label: 'Add',
           ),
           NavigationDestination(
-            icon: Icon(Icons.badge_outlined),
-            selectedIcon: Icon(Icons.badge_rounded),
-            label: 'Credits',
-          ),
-          NavigationDestination(
             icon: Icon(Icons.settings_outlined),
             selectedIcon: Icon(Icons.settings_rounded),
             label: 'Settings',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.badge_outlined),
+            selectedIcon: Icon(Icons.badge_rounded),
+            label: 'Credits',
           ),
         ],
       ),
