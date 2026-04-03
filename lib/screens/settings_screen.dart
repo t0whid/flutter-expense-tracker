@@ -1,10 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
+import '../services/export_service.dart';
 import '../widgets/app_snackbar.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
+
+  Future<void> _exportCsv(BuildContext context) async {
+    final provider = context.read<TransactionProvider>();
+
+    if (provider.transactions.isEmpty) {
+      AppSnackbar.showError(context, 'No transactions available to export');
+      return;
+    }
+
+    try {
+      await ExportService.exportTransactionsAsCsv(provider.transactions);
+
+      if (!context.mounted) return;
+      AppSnackbar.showSuccess(context, 'CSV export ready');
+    } catch (_) {
+      if (!context.mounted) return;
+      AppSnackbar.showError(context, 'Failed to export CSV');
+    }
+  }
+
+  Future<void> _backupJson(BuildContext context) async {
+    final provider = context.read<TransactionProvider>();
+
+    if (provider.transactions.isEmpty) {
+      AppSnackbar.showError(context, 'No transactions available to back up');
+      return;
+    }
+
+    try {
+      await ExportService.exportTransactionsAsJson(provider.transactions);
+
+      if (!context.mounted) return;
+      AppSnackbar.showSuccess(context, 'JSON backup ready');
+    } catch (_) {
+      if (!context.mounted) return;
+      AppSnackbar.showError(context, 'Failed to create JSON backup');
+    }
+  }
 
   Future<void> _confirmReset(BuildContext context) async {
     final provider = context.read<TransactionProvider>();
@@ -52,6 +91,7 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<TransactionProvider>();
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -75,7 +115,44 @@ class SettingsScreen extends StatelessWidget {
               ],
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const Text(
+                  'Data Management',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF111827),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '${provider.transactions.length} saved transactions',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF6B7280),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _SettingsTile(
+                  icon: Icons.table_chart_rounded,
+                  iconBg: const Color(0xFFE0F2FE),
+                  iconColor: const Color(0xFF0284C7),
+                  title: 'Export as CSV',
+                  subtitle: 'Download/share your transaction data in CSV format',
+                  onTap: () => _exportCsv(context),
+                ),
+                const Divider(height: 24),
+                _SettingsTile(
+                  icon: Icons.backup_rounded,
+                  iconBg: const Color(0xFFEDE9FE),
+                  iconColor: const Color(0xFF7C3AED),
+                  title: 'Backup as JSON',
+                  subtitle: 'Create a structured JSON backup of all transactions',
+                  onTap: () => _backupJson(context),
+                ),
+                const Divider(height: 24),
                 _SettingsTile(
                   icon: Icons.delete_sweep_rounded,
                   iconBg: const Color(0xFFFEE2E2),
@@ -84,7 +161,25 @@ class SettingsScreen extends StatelessWidget {
                   subtitle: 'Delete all saved transactions from the app',
                   onTap: () => _confirmReset(context),
                 ),
-                const Divider(height: 24),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 22,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: Container(
@@ -106,7 +201,7 @@ class SettingsScreen extends StatelessWidget {
                       color: Color(0xFF111827),
                     ),
                   ),
-                  subtitle: const Text('Expense Tracker MVP'),
+                  subtitle: const Text('Expense Tracker'),
                   trailing: Text(
                     'v1.0.0',
                     style: theme.textTheme.bodyMedium?.copyWith(
