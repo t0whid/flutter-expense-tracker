@@ -77,16 +77,17 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
     final entries = widget.data.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    final totalExpense = entries.fold<double>(0, (sum, e) => sum + e.value);
+    final double totalExpense =
+    entries.fold<double>(0, (sum, e) => sum + e.value);
     final topCategory = entries.first;
-    final topCategoryPercentage =
+    final double topCategoryPercentage =
     totalExpense == 0 ? 0.0 : (topCategory.value / totalExpense) * 100;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildRangeSelector(),
         const SizedBox(height: 18),
-
         SizedBox(
           height: 270,
           child: Stack(
@@ -114,7 +115,7 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
                   sections: List.generate(entries.length, (index) {
                     final item = entries[index];
                     final isTouched = index == touchedIndex;
-                    final percentage = totalExpense == 0
+                    final double percentage = totalExpense == 0
                         ? 0.0
                         : (item.value / totalExpense) * 100;
 
@@ -188,21 +189,17 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
             ],
           ),
         ),
-
         const SizedBox(height: 18),
-
         _InsightCard(
           icon: Icons.workspace_premium_rounded,
           iconBg: const Color(0xFFEDE9FE),
           iconColor: const Color(0xFF7C3AED),
           title: 'Top spending category',
-          value:
-          '${topCategory.key} • ৳${topCategory.value.toStringAsFixed(0)}',
-          subtitle: '${topCategoryPercentage.toStringAsFixed(0)}% of total expense',
+          value: '${topCategory.key} • ৳${topCategory.value.toStringAsFixed(0)}',
+          subtitle:
+          '${topCategoryPercentage.toStringAsFixed(1)}% of total expense',
         ),
-
         const SizedBox(height: 12),
-
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -238,7 +235,7 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
               ...List.generate(entries.length, (index) {
                 final item = entries[index];
                 final color = colors[index % colors.length];
-                final percentage = totalExpense == 0
+                final double percentage = totalExpense == 0
                     ? 0.0
                     : (item.value / totalExpense) * 100;
 
@@ -279,7 +276,8 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
             duration: const Duration(milliseconds: 180),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: selected ? const Color(0xFF111827) : const Color(0xFFF3F4F6),
+              color:
+              selected ? const Color(0xFF111827) : const Color(0xFFF3F4F6),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Text(
@@ -398,7 +396,8 @@ class _CategoryBreakdownRow extends StatelessWidget {
         color: highlighted ? color.withOpacity(0.08) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: highlighted ? color.withOpacity(0.35) : const Color(0xFFE5E7EB),
+          color:
+          highlighted ? color.withOpacity(0.35) : const Color(0xFFE5E7EB),
         ),
       ),
       child: Column(
@@ -425,7 +424,7 @@ class _CategoryBreakdownRow extends StatelessWidget {
                 ),
               ),
               Text(
-                '${percentage.toStringAsFixed(0)}%',
+                '${percentage.toStringAsFixed(1)}%',
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
