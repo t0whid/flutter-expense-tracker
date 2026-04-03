@@ -50,4 +50,20 @@ class TransactionProvider extends ChangeNotifier {
     }
     return result;
   }
+
+  List<TransactionModel> searchTransactions({
+    required String filter,
+    required String query,
+  }) {
+    return transactions.where((tx) {
+      final matchesFilter = filter == 'all' ? true : tx.type == filter;
+      final q = query.trim().toLowerCase();
+
+      final matchesQuery = q.isEmpty ||
+          tx.category.toLowerCase().contains(q) ||
+          tx.note.toLowerCase().contains(q);
+
+      return matchesFilter && matchesQuery;
+    }).toList();
+  }
 }

@@ -107,28 +107,56 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 14),
-                  DropdownButtonFormField<String>(
-                    value: _category,
-                    items: categories
-                        .map(
-                          (cat) => DropdownMenuItem(
-                        value: cat,
-                        child: Text(cat),
+                  const SizedBox(height: 18),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Category',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade700,
+                        fontWeight: FontWeight.w700,
                       ),
-                    )
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _category = value!;
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Category',
-                      prefixIcon: Icon(Icons.grid_view_rounded),
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: categories.map((cat) {
+                      final selected = _category == cat;
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _category = cat;
+                          });
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 11,
+                          ),
+                          decoration: BoxDecoration(
+                            color: selected
+                                ? const Color(0xFF4F46E5)
+                                : const Color(0xFFF3F4F6),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Text(
+                            cat,
+                            style: TextStyle(
+                              color: selected
+                                  ? Colors.white
+                                  : const Color(0xFF4B5563),
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 18),
                   TextFormField(
                     controller: _noteController,
                     decoration: const InputDecoration(
@@ -217,7 +245,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final transaction = TransactionModel(
-      id: const Uuid().v4(),
+      id: Uuid().v4(),
       amount: double.parse(_amountController.text.trim()),
       type: _type,
       category: _category,
@@ -228,7 +256,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     await context.read<TransactionProvider>().addTransaction(transaction);
 
     if (mounted) {
-      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Transaction saved'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 }

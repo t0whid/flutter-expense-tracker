@@ -4,8 +4,6 @@ import '../providers/transaction_provider.dart';
 import '../widgets/expense_pie_chart.dart';
 import '../widgets/summary_card.dart';
 import '../widgets/transaction_tile.dart';
-import 'add_transaction_screen.dart';
-import 'transactions_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -17,29 +15,9 @@ class DashboardScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const TransactionsScreen(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.receipt_long_rounded),
-            ),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 4, 16, 100),
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -52,7 +30,6 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-
             SummaryCard(
               title: 'Total Income',
               amount: '৳${provider.totalIncome.toStringAsFixed(0)}',
@@ -76,9 +53,7 @@ class DashboardScreen extends StatelessWidget {
               iconBg: const Color(0xFFE0E7FF),
               iconColor: const Color(0xFF4F46E5),
             ),
-
             const SizedBox(height: 22),
-
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -117,35 +92,16 @@ class DashboardScreen extends StatelessWidget {
                 ],
               ),
             ),
-
             const SizedBox(height: 22),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Recent Transactions',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF111827),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const TransactionsScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text('See all'),
-                ),
-              ],
+            const Text(
+              'Recent Transactions',
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF111827),
+              ),
             ),
             const SizedBox(height: 10),
-
             if (provider.recentTransactions.isEmpty)
               Container(
                 width: double.infinity,
@@ -186,19 +142,6 @@ class DashboardScreen extends StatelessWidget {
                     (tx) => TransactionTile(transaction: tx),
               ),
           ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AddTransactionScreen()),
-          );
-        },
-        icon: const Icon(Icons.add_rounded),
-        label: const Text(
-          'Add',
-          style: TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
     );

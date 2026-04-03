@@ -16,17 +16,14 @@ class TransactionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final isIncome = transaction.type == 'income';
 
-    final amountColor = isIncome
-        ? const Color(0xFF16A34A)
-        : const Color(0xFFDC2626);
+    final amountColor =
+    isIncome ? const Color(0xFF16A34A) : const Color(0xFFDC2626);
 
-    final bgColor = isIncome
-        ? const Color(0xFFDCFCE7)
-        : const Color(0xFFFEE2E2);
+    final bgColor =
+    isIncome ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2);
 
-    final iconColor = isIncome
-        ? const Color(0xFF16A34A)
-        : const Color(0xFFDC2626);
+    final iconColor =
+    isIncome ? const Color(0xFF16A34A) : const Color(0xFFDC2626);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),

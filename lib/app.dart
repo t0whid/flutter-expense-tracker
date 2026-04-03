@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/transaction_provider.dart';
-import 'screens/dashboard_screen.dart';
+import 'screens/main_nav_screen.dart';
 
 class ExpenseTrackerApp extends StatelessWidget {
   const ExpenseTrackerApp({super.key});
@@ -56,9 +56,9 @@ class ExpenseTrackerApp extends StatelessWidget {
               borderRadius: BorderRadius.circular(18),
               borderSide: BorderSide(color: Colors.grey.shade200),
             ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(18),
-              borderSide: const BorderSide(
+            focusedBorder: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(18)),
+              borderSide: BorderSide(
                 color: Color(0xFF4F46E5),
                 width: 1.4,
               ),
@@ -68,13 +68,8 @@ class ExpenseTrackerApp extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
-          floatingActionButtonTheme: const FloatingActionButtonThemeData(
-            backgroundColor: Color(0xFF4F46E5),
-            foregroundColor: Colors.white,
-            elevation: 0,
-          ),
         ),
-        home: const DashboardScreen(),
+        home: const MainNavScreen(),
       ),
     );
   }
