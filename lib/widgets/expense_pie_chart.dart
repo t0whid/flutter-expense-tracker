@@ -16,8 +16,8 @@ class ExpensePieChart extends StatefulWidget {
 }
 
 class _ExpensePieChartState extends State<ExpensePieChart> {
+  int touchedIndex = -1;
   String selectedRange = 'This Month';
-  int highlightedIndex = 0;
 
   final List<Color> colors = const [
     Color(0xFF4F46E5),
@@ -48,7 +48,7 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
         child: const Column(
           children: [
             Icon(
-              Icons.bar_chart_rounded,
+              Icons.pie_chart_outline_rounded,
               size: 48,
               color: Color(0xFF9CA3AF),
             ),
@@ -79,21 +79,19 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
     final entries = widget.data.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    if (highlightedIndex >= entries.length) {
-      highlightedIndex = 0;
-    }
-
     final double totalExpense =
     entries.fold<double>(0, (sum, e) => sum + e.value);
+
     final topCategory = entries.first;
     final double topCategoryPercentage =
     totalExpense == 0 ? 0.0 : (topCategory.value / totalExpense) * 100;
-    final double maxAmount = entries.first.value;
 
-    final highlightedItem = entries[highlightedIndex];
-    final double highlightedPercentage = totalExpense == 0
+    final bool hasSelection =
+        touchedIndex >= 0 && touchedIndex < entries.length;
+    final selectedItem = hasSelection ? entries[touchedIndex] : topCategory;
+    final double selectedPercentage = totalExpense == 0
         ? 0.0
-        : (highlightedItem.value / totalExpense) * 100;
+        : (selectedItem.value / totalExpense) * 100;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,11 +158,11 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
           icon: Icons.insights_rounded,
           iconBg: const Color(0xFFE0F2FE),
           iconColor: const Color(0xFF0284C7),
-          title: 'Highlighted category',
+          title: hasSelection ? 'Selected category' : 'Current highlight',
           value:
-          '${highlightedItem.key} • ৳${highlightedItem.value.toStringAsFixed(0)}',
+          '${selectedItem.key} • ৳${selectedItem.value.toStringAsFixed(0)}',
           subtitle:
-          '${highlightedPercentage.toStringAsFixed(1)}% of total expense',
+          '${selectedPercentage.toStringAsFixed(1)}% of total expense',
         ),
 
         const SizedBox(height: 14),
@@ -192,7 +190,7 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
                     ),
                   ),
                   Text(
-                    '${entries.length} categories',
+                    'Tap a slice',
                     style: const TextStyle(
                       fontSize: 12,
                       color: Color(0xFF6B7280),
@@ -201,114 +199,112 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: (entries.length * 42).clamp(180, 420).toDouble(),
-                child: BarChart(
-                  BarChartData(
-                    maxY: maxAmount == 0 ? 1 : maxAmount * 1.15,
-                    alignment: BarChartAlignment.spaceAround,
-                    barTouchData: BarTouchData(
-                      enabled: true,
-                      touchCallback: (event, response) {
-                        if (response?.spot != null) {
-                          setState(() {
-                            highlightedIndex =
-                                response!.spot!.touchedBarGroupIndex;
-                          });
-                        }
-                      },
-                    ),
-                    titlesData: FlTitlesData(
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 80,
-                          getTitlesWidget: (value, meta) {
-                            final index = value.toInt();
-                            if (index < 0 || index >= entries.length) {
-                              return const SizedBox.shrink();
-                            }
-                            final label = entries[index].key;
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: RotatedBox(
-                                quarterTurns: 3,
-                                child: Text(
-                                  label.length > 12
-                                      ? '${label.substring(0, 12)}…'
-                                      : label,
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF6B7280),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 42,
-                          getTitlesWidget: (value, meta) {
-                            return Text(
-                              value == 0
-                                  ? '0'
-                                  : '৳${value.toInt()}',
-                              style: const TextStyle(
-                                fontSize: 10,
-                                color: Color(0xFF9CA3AF),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: false,
-                      horizontalInterval: maxAmount <= 5 ? 1 : maxAmount / 4,
-                      getDrawingHorizontalLine: (value) {
-                        return const FlLine(
-                          color: Color(0xFFE5E7EB),
-                          strokeWidth: 1,
-                        );
-                      },
-                    ),
-                    borderData: FlBorderData(show: false),
-                    barGroups: List.generate(entries.length, (index) {
-                      final item = entries[index];
-                      final color = colors[index % colors.length];
-                      final isHighlighted = index == highlightedIndex;
+              const SizedBox(height: 18),
 
-                      return BarChartGroupData(
-                        x: index,
-                        barRods: [
-                          BarChartRodData(
-                            toY: item.value,
-                            width: isHighlighted ? 24 : 20,
-                            borderRadius: BorderRadius.circular(8),
-                            color: color,
-                            backDrawRodData: BackgroundBarChartRodData(
-                              show: true,
-                              toY: maxAmount,
+              SizedBox(
+                height: 260,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    PieChart(
+                      PieChartData(
+                        pieTouchData: PieTouchData(
+                          touchCallback: (event, response) {
+                            setState(() {
+                              if (!event.isInterestedForInteractions ||
+                                  response == null ||
+                                  response.touchedSection == null) {
+                                touchedIndex = -1;
+                                return;
+                              }
+                              touchedIndex =
+                                  response.touchedSection!.touchedSectionIndex;
+                            });
+                          },
+                        ),
+                        sectionsSpace: 4,
+                        centerSpaceRadius: 72,
+                        startDegreeOffset: -90,
+                        sections: List.generate(entries.length, (index) {
+                          final item = entries[index];
+                          final isTouched = index == touchedIndex;
+                          final double percentage = totalExpense == 0
+                              ? 0.0
+                              : (item.value / totalExpense) * 100;
+
+                          return PieChartSectionData(
+                            color: colors[index % colors.length],
+                            value: item.value,
+                            title: isTouched
+                                ? '${percentage.toStringAsFixed(1)}%'
+                                : '',
+                            radius: isTouched ? 78 : 66,
+                            titleStyle: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '৳${totalExpense.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF111827),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Total Spent',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF6B7280),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '${widget.expenseCount} expenses',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF9CA3AF),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        if (hasSelection) ...[
+                          const SizedBox(height: 10),
+                          Container(
+                            constraints: const BoxConstraints(maxWidth: 110),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
                               color: const Color(0xFFF3F4F6),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              selectedItem.key,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF374151),
+                              ),
                             ),
                           ),
                         ],
-                      );
-                    }),
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -356,21 +352,18 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
                 final double percentage = totalExpense == 0
                     ? 0.0
                     : (item.value / totalExpense) * 100;
-                final double progress =
-                maxAmount == 0 ? 0.0 : item.value / maxAmount;
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 14),
-                  child: _CategoryBarRow(
+                  child: _LegendRow(
                     color: color,
                     category: item.key,
                     amount: item.value,
                     percentage: percentage,
-                    progress: progress,
-                    highlighted: highlightedIndex == index,
+                    highlighted: touchedIndex == index,
                     onTap: () {
                       setState(() {
-                        highlightedIndex = index;
+                        touchedIndex = index;
                       });
                     },
                   ),
@@ -534,21 +527,19 @@ class _InsightCard extends StatelessWidget {
   }
 }
 
-class _CategoryBarRow extends StatelessWidget {
+class _LegendRow extends StatelessWidget {
   final Color color;
   final String category;
   final double amount;
   final double percentage;
-  final double progress;
   final bool highlighted;
   final VoidCallback onTap;
 
-  const _CategoryBarRow({
+  const _LegendRow({
     required this.color,
     required this.category,
     required this.amount,
     required this.percentage,
-    required this.progress,
     required this.highlighted,
     required this.onTap,
   });
@@ -571,56 +562,44 @@ class _CategoryBarRow extends StatelessWidget {
               highlighted ? color.withOpacity(0.35) : const Color(0xFFE5E7EB),
             ),
           ),
-          child: Column(
+          child: Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 11,
-                    height: 11,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      category,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF111827),
-                      ),
-                    ),
-                  ),
-                  Text(
-                    '${percentage.toStringAsFixed(1)}%',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF6B7280),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    '৳${amount.toStringAsFixed(0)}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF111827),
-                    ),
-                  ),
-                ],
+              Container(
+                width: 11,
+                height: 11,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(3),
+                ),
               ),
-              const SizedBox(height: 10),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(99),
-                child: LinearProgressIndicator(
-                  value: progress,
-                  minHeight: 10,
-                  backgroundColor: const Color(0xFFE5E7EB),
-                  valueColor: AlwaysStoppedAnimation<Color>(color),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  category,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF111827),
+                  ),
+                ),
+              ),
+              Text(
+                '${percentage.toStringAsFixed(1)}%',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF6B7280),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                '৳${amount.toStringAsFixed(0)}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF111827),
                 ),
               ),
             ],
