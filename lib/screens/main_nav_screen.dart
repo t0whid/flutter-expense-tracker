@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'add_transaction_screen.dart';
+import 'credits_screen.dart';
 import 'dashboard_screen.dart';
 import 'transactions_screen.dart';
 
@@ -17,10 +18,15 @@ class _MainNavScreenState extends State<MainNavScreen> {
     DashboardScreen(),
     TransactionsScreen(),
     AddTransactionScreen(),
+    CreditsScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
+    if (currentIndex >= pages.length) {
+      currentIndex = 0;
+    }
+
     return Scaffold(
       body: IndexedStack(
         index: currentIndex,
@@ -51,6 +57,11 @@ class _MainNavScreenState extends State<MainNavScreen> {
             icon: Icon(Icons.add_circle_outline_rounded),
             selectedIcon: Icon(Icons.add_circle_rounded),
             label: 'Add',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.info_outline_rounded),
+            selectedIcon: Icon(Icons.info_rounded),
+            label: 'Credits',
           ),
         ],
       ),
