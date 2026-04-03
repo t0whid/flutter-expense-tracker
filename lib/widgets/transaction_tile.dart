@@ -115,18 +115,21 @@ class TransactionTile extends StatelessWidget {
                   const SizedBox(height: 10),
                   if (onDelete != null)
                     InkWell(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(14),
                       onTap: onDelete,
                       child: Container(
-                        padding: const EdgeInsets.all(6),
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF3F4F6),
-                          borderRadius: BorderRadius.circular(10),
+                          color: const Color(0xFFFEE2E2),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: const Color(0xFFFECACA),
+                          ),
                         ),
                         child: const Icon(
-                          Icons.delete_outline_rounded,
+                          Icons.delete_sweep_rounded,
                           size: 18,
-                          color: Color(0xFF6B7280),
+                          color: Color(0xFFDC2626),
                         ),
                       ),
                     ),
