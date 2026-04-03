@@ -80,7 +80,7 @@ class DashboardScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   const Text(
-                    'Tap a slice to highlight details',
+                    'Category insights and spending distribution',
                     style: TextStyle(
                       fontSize: 12,
                       color: Color(0xFF6B7280),
@@ -88,7 +88,10 @@ class DashboardScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  ExpensePieChart(data: provider.expenseCategoryTotals),
+                  ExpensePieChart(
+                    data: provider.expenseCategoryTotals,
+                    expenseCount: provider.filteredExpenseTransactions.length,
+                  ),
                 ],
               ),
             ),
