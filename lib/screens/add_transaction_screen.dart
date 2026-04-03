@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../models/transaction_model.dart';
 import '../providers/transaction_provider.dart';
 import '../utils/categories.dart';
+import '../widgets/app_snackbar.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   final TransactionModel? transaction;
@@ -49,6 +50,18 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     _amountController.dispose();
     _noteController.dispose();
     super.dispose();
+  }
+
+  void _resetFormForAddMode() {
+    _formKey.currentState?.reset();
+    _amountController.clear();
+    _noteController.clear();
+
+    setState(() {
+      _type = 'expense';
+      _category = expenseCategories.first;
+      _selectedDate = DateTime.now();
+    });
   }
 
   @override
@@ -108,7 +121,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         ),
                       ),
                     ),
-
                   Opacity(
                     opacity: isEditMode ? 0.75 : 1,
                     child: Container(
@@ -153,9 +165,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 18),
-
                   TextFormField(
                     controller: _amountController,
                     keyboardType: const TextInputType.numberWithOptions(
@@ -179,9 +189,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       return null;
                     },
                   ),
-
                   const SizedBox(height: 18),
-
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -194,7 +202,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-
                   Wrap(
                     spacing: 10,
                     runSpacing: 10,
@@ -236,9 +243,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       );
                     }).toList(),
                   ),
-
                   const SizedBox(height: 18),
-
                   TextFormField(
                     controller: _noteController,
                     decoration: const InputDecoration(
@@ -246,9 +251,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       prefixIcon: Icon(Icons.sticky_note_2_outlined),
                     ),
                   ),
-
                   const SizedBox(height: 14),
-
                   InkWell(
                     borderRadius: BorderRadius.circular(18),
                     onTap: () async {
@@ -293,9 +296,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 22),
-
                   SizedBox(
                     width: double.infinity,
                     height: 54,
@@ -330,35 +331,46 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   Future<void> _saveTransaction() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final provider = context.read<TransactionProvider>();
+    try {
+      final provider = context.read<TransactionProvider>();
 
-    final transaction = TransactionModel(
-      id: widget.transaction?.id ?? const Uuid().v4(),
-      amount: double.parse(_amountController.text.trim()),
-      type: _type,
-      category: _category,
-      note: _noteController.text.trim(),
-      date: _selectedDate,
-    );
+      final transaction = TransactionModel(
+        id: widget.transaction?.id ?? const Uuid().v4(),
+        amount: double.parse(_amountController.text.trim()),
+        type: _type,
+        category: _category,
+        note: _noteController.text.trim(),
+        date: _selectedDate,
+      );
 
-    if (isEditMode) {
-      await provider.updateTransaction(transaction);
-    } else {
-      await provider.addTransaction(transaction);
+      if (isEditMode) {
+        await provider.updateTransaction(transaction);
+      } else {
+        await provider.addTransaction(transaction);
+      }
+
+      if (!mounted) return;
+
+      AppSnackbar.showSuccess(
+        context,
+        isEditMode
+            ? 'Transaction updated successfully'
+            : 'Transaction added successfully',
+      );
+
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      } else if (!isEditMode) {
+        _resetFormForAddMode();
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      AppSnackbar.showError(
+        context,
+        'Something went wrong. Please try again.',
+      );
     }
-
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          isEditMode ? 'Transaction updated' : 'Transaction saved',
-        ),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-
-    Navigator.pop(context);
   }
 }
 

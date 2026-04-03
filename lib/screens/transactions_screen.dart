@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/transaction_model.dart';
 import '../providers/transaction_provider.dart';
+import '../widgets/app_snackbar.dart';
 import '../widgets/transaction_tile.dart';
 import 'add_transaction_screen.dart';
 
@@ -117,16 +118,23 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                             await _showDeleteConfirmation(context);
 
                             if (shouldDelete == true) {
-                              await provider.deleteTransaction(tx.id);
+                              try {
+                                await provider.deleteTransaction(tx.id);
 
-                              if (!mounted) return;
+                                if (!mounted) return;
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Transaction deleted'),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
+                                AppSnackbar.showSuccess(
+                                  context,
+                                  'Transaction deleted successfully',
+                                );
+                              } catch (e) {
+                                if (!mounted) return;
+
+                                AppSnackbar.showError(
+                                  context,
+                                  'Failed to delete transaction',
+                                );
+                              }
                             }
                           },
                         ),
