@@ -121,11 +121,7 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
                     return PieChartSectionData(
                       color: colors[index % colors.length],
                       value: item.value,
-                      title: isTouched
-                          ? '${percentage.toStringAsFixed(0)}%'
-                          : percentage >= 10
-                          ? '${percentage.toStringAsFixed(0)}%'
-                          : '',
+                      title: '${percentage.toStringAsFixed(0)}%',
                       radius: isTouched ? 78 : 66,
                       titleStyle: TextStyle(
                         fontSize: isTouched ? 14 : 11,

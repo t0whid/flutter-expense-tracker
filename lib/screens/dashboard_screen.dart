@@ -4,6 +4,7 @@ import '../providers/transaction_provider.dart';
 import '../widgets/expense_pie_chart.dart';
 import '../widgets/summary_card.dart';
 import '../widgets/transaction_tile.dart';
+import 'add_transaction_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -142,7 +143,17 @@ class DashboardScreen extends StatelessWidget {
               )
             else
               ...provider.recentTransactions.map(
-                    (tx) => TransactionTile(transaction: tx),
+                    (tx) => TransactionTile(
+                  transaction: tx,
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AddTransactionScreen(transaction: tx),
+                      ),
+                    );
+                  },
+                ),
               ),
           ],
         ),

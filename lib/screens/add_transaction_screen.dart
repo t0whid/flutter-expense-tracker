@@ -6,7 +6,9 @@ import '../providers/transaction_provider.dart';
 import '../utils/categories.dart';
 
 class AddTransactionScreen extends StatefulWidget {
-  const AddTransactionScreen({super.key});
+  final TransactionModel? transaction;
+
+  const AddTransactionScreen({super.key, this.transaction});
 
   @override
   State<AddTransactionScreen> createState() => _AddTransactionScreenState();
@@ -17,9 +19,37 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
 
-  String _type = 'expense';
-  String _category = expenseCategories.first;
-  DateTime _selectedDate = DateTime.now();
+  late String _type;
+  late String _category;
+  late DateTime _selectedDate;
+
+  bool get isEditMode => widget.transaction != null;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final tx = widget.transaction;
+
+    _type = tx?.type ?? 'expense';
+    _category = tx?.category ??
+        (_type == 'expense' ? expenseCategories.first : incomeCategories.first);
+    _selectedDate = tx?.date ?? DateTime.now();
+
+    if (tx != null) {
+      _amountController.text = tx.amount.toStringAsFixed(
+        tx.amount.truncateToDouble() == tx.amount ? 0 : 2,
+      );
+      _noteController.text = tx.note;
+    }
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _noteController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +61,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Transaction')),
+      appBar: AppBar(
+        title: Text(isEditMode ? 'Edit Transaction' : 'Add Transaction'),
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         children: [
@@ -101,8 +133,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       if (value == null || value.trim().isEmpty) {
                         return 'Enter amount';
                       }
-                      if (double.tryParse(value) == null) {
+                      final parsed = double.tryParse(value);
+                      if (parsed == null) {
                         return 'Enter valid amount';
+                      }
+                      if (parsed <= 0) {
+                        return 'Amount must be greater than 0';
                       }
                       return null;
                     },
@@ -223,9 +259,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                           borderRadius: BorderRadius.circular(18),
                         ),
                       ),
-                      child: const Text(
-                        'Save Transaction',
-                        style: TextStyle(
+                      child: Text(
+                        isEditMode ? 'Update Transaction' : 'Save Transaction',
+                        style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
                         ),
@@ -244,8 +280,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   Future<void> _saveTransaction() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final provider = context.read<TransactionProvider>();
+
     final transaction = TransactionModel(
-      id: Uuid().v4(),
+      id: widget.transaction?.id ?? const Uuid().v4(),
       amount: double.parse(_amountController.text.trim()),
       type: _type,
       category: _category,
@@ -253,16 +291,24 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       date: _selectedDate,
     );
 
-    await context.read<TransactionProvider>().addTransaction(transaction);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Transaction saved'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+    if (isEditMode) {
+      await provider.updateTransaction(transaction);
+    } else {
+      await provider.addTransaction(transaction);
     }
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          isEditMode ? 'Transaction updated' : 'Transaction saved',
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+
+    Navigator.pop(context);
   }
 }
 

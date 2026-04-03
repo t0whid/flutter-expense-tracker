@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/transaction_model.dart';
 import '../providers/transaction_provider.dart';
 import '../widgets/transaction_tile.dart';
+import 'add_transaction_screen.dart';
 
 class TransactionsScreen extends StatefulWidget {
   const TransactionsScreen({super.key});
@@ -101,8 +102,32 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       ...entry.value.map(
                             (tx) => TransactionTile(
                           transaction: tx,
+                          onTap: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => AddTransactionScreen(
+                                  transaction: tx,
+                                ),
+                              ),
+                            );
+                          },
                           onDelete: () async {
-                            await provider.deleteTransaction(tx.id);
+                            final shouldDelete =
+                            await _showDeleteConfirmation(context);
+
+                            if (shouldDelete == true) {
+                              await provider.deleteTransaction(tx.id);
+
+                              if (!mounted) return;
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Transaction deleted'),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            }
                           },
                         ),
                       ),
@@ -114,6 +139,36 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<bool?> _showDeleteConfirmation(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete transaction?'),
+          content: const Text(
+            'This action cannot be undone. Are you sure you want to delete this transaction?',
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFFDC2626),
+              ),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
     );
   }
 

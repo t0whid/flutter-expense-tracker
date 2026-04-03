@@ -34,6 +34,11 @@ class TransactionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateTransaction(TransactionModel transaction) async {
+    await box.put(transaction.id, transaction);
+    notifyListeners();
+  }
+
   Future<void> deleteTransaction(String id) async {
     await box.delete(id);
     notifyListeners();
