@@ -44,6 +44,11 @@ class TransactionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> clearAllTransactions() async {
+    await box.clear();
+    notifyListeners();
+  }
+
   List<TransactionModel> get filteredExpenseTransactions {
     return transactions.where((t) => t.type == 'expense').toList();
   }

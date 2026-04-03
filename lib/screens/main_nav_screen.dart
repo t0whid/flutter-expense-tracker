@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'add_transaction_screen.dart';
 import 'credits_screen.dart';
 import 'dashboard_screen.dart';
+import 'settings_screen.dart';
 import 'transactions_screen.dart';
 
 class MainNavScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
     TransactionsScreen(),
     AddTransactionScreen(),
     CreditsScreen(),
+    SettingsScreen(),
   ];
 
   @override
@@ -59,9 +61,14 @@ class _MainNavScreenState extends State<MainNavScreen> {
             label: 'Add',
           ),
           NavigationDestination(
-            icon: Icon(Icons.info_outline_rounded),
-            selectedIcon: Icon(Icons.info_rounded),
+            icon: Icon(Icons.badge_outlined),
+            selectedIcon: Icon(Icons.badge_rounded),
             label: 'Credits',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings_rounded),
+            label: 'Settings',
           ),
         ],
       ),
